@@ -37,14 +37,21 @@
   }
 }
 
-
 /* src/App.css */
 
 /* Reset some default styles */
-body {
+body.light {
+  background-color: white;
+  color: black;
   margin: 0;
   font-family: Arial, sans-serif;
-  background-color: #f8f9fa;
+}
+
+body.dark {
+  background-color: #121212;
+  color: white;
+  margin: 0;
+  font-family: Arial, sans-serif;
 }
 
 h1.heading {
@@ -53,5 +60,3 @@ h1.heading {
   margin: 20px 0;
   color: #333;
 }
-
-
