@@ -36,8 +36,16 @@ const Title = styled.h1`
   color: #333;
 `;
 
-const Header = () => {
+const Select = styled.select`
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+`;
+
+const Header = ({ themeMode, selectedCategory, onFilterChange }) => {
   const [theme, setTheme] = useState("light");
+  const categories = ["All", "Work", "Personal", "Others"];
 
   useEffect(() => {
     document.body.className = theme;

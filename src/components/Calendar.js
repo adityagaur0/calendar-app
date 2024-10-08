@@ -5,8 +5,8 @@ import { Link } from "react-router-dom";
 import Modal from "./Modal";
 import EventForm from "./EventForm";
 import AddIcon from "@mui/icons-material/Add";
-// Import the Add icon from Material-UI
 import Fab from "@mui/material/Fab";
+import header from "./Header";
 
 const CalendarContainer = styled.div`
   max-width: 1000px;
@@ -23,6 +23,7 @@ const CalendarContainer = styled.div`
     padding: 10px;
   }
 `;
+
 const FloatingButton = styled(Fab)`
   align-items: end;
   position: fixed;
@@ -44,6 +45,13 @@ const Header = styled.div`
   h2 {
     font-size: 1.5rem;
     color: ${({ themeMode }) => (themeMode === "dark" ? "white" : "#333")};
+  }
+
+  select {
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    cursor: pointer;
   }
 `;
 
@@ -136,6 +144,7 @@ const Calendar = ({ themeMode }) => {
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [showModal, setShowModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState("All"); // State for selected category
 
   const { events, loading, error, addEvent } = useEvents(); // Ensure addEvent is destructured
 
@@ -172,7 +181,10 @@ const Calendar = ({ themeMode }) => {
       const date = new Date(currentYear, currentMonth, day);
       const dayEvents = events.filter((event) => {
         const eventDate = new Date(event.date);
-        return eventDate.toDateString() === date.toDateString();
+        const isSameDate = eventDate.toDateString() === date.toDateString();
+        const isSelectedCategory =
+          selectedCategory === "All" || event.category === selectedCategory; // Check if the event category matches the selected category
+        return isSameDate && isSelectedCategory;
       });
 
       const sortedDayEvents = dayEvents.sort(
@@ -238,10 +250,6 @@ const Calendar = ({ themeMode }) => {
     }
   };
 
-  // const handleDayClick = (date) => {
-  //   setSelectedDate(date);
-  //   setShowModal(true);
-  // };
   const handleDayClick = (date) => {
     console.log("Clicked Date: ", date); // Check the clicked date
     const normalizedDate = new Date(date);
@@ -255,9 +263,20 @@ const Calendar = ({ themeMode }) => {
     setShowModal(false);
     setSelectedDate(null);
   };
-  const openEventForm = () => {
-    setSelectedDate(new Date()); // Set selectedDate to today's date for the new event
+
+  const openEventForm = (event) => {
+    console.log(event); // Add this to debug
+    setSelectedDate(event.date);
     setShowModal(true);
+  };
+
+  const handleAddEvent = (event) => {
+    addEvent(event);
+    closeModal();
+  };
+
+  const handleCategoryChange = (event) => {
+    setSelectedCategory(event.target.value);
   };
 
   return (
@@ -267,26 +286,24 @@ const Calendar = ({ themeMode }) => {
         <h2>
           {months[currentMonth]} {currentYear}
         </h2>
+        <select value={selectedCategory} onChange={handleCategoryChange}>
+          <option value="All">All</option>
+          <option value="Work">Work</option>
+          <option value="Personal">Personal</option>
+          <option value="Others">Others</option>
+        </select>
+
         <Button onClick={nextMonth}>Next</Button>
       </Header>
-      {loading && <p>Loading events...</p>}
-      {error && <p>{error}</p>} {/* Error handling */}
-      <Grid>
-        {/* Week Days Headers */}
-        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-          <strong key={day}>{day}</strong>
-        ))}
-        {/* Calendar Days */}
-        {generateCalendar()}
-      </Grid>
-      {showModal && (
-        <Modal onClose={closeModal}>
-          <EventForm selectedDate={selectedDate} onClose={closeModal} />
-        </Modal>
-      )}
-      <FloatingButton onClick={openEventForm}>
+      <Grid>{generateCalendar()}</Grid>
+      <FloatingButton onClick={() => setShowModal(true)}>
         <AddIcon />
       </FloatingButton>
+      {showModal && (
+        <Modal onClose={closeModal}>
+          <EventForm date={selectedDate} onSubmit={handleAddEvent} />
+        </Modal>
+      )}
     </CalendarContainer>
   );
 };
