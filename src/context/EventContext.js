@@ -61,8 +61,9 @@ export const EventProvider = ({ children }) => {
   // Add a new event (POST)
   const addEvent = async (event) => {
     try {
-      const response = await axios.post(`${baseURL}/`, event); // Use only base URL
-      setEvents((prevEvents) => [...prevEvents, response.data]); // Append new event
+      //  const response = await axios.post(`${baseURL}/`, event); // Use only base URL
+      // setEvents((prevEvents) => [...prevEvents, response.data]); // Append new event
+      console.log("Event added: yaa se"); // Log the added event
       setError(null);
     } catch (err) {
       setError("Failed to add event.");

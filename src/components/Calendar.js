@@ -45,25 +45,60 @@ const Grid = styled.div`
   padding: 10px 0;
 `;
 
+// const Day = styled.div`
+//   padding: 10px;
+//   background-color: ${(props) =>
+//     props.isCurrentMonth ? "#e6e6e6" : "transparent"};
+//   border: 1px solid #ccc;
+//   border-radius: 5px;
+//   min-height: 80px;
+//   position: relative;
+//   cursor: pointer;
+
+//   &:hover {
+//     background-color: #dcdcdc;
+//   }
+
+//   ${(props) =>
+//     props.hasEvent &&
+//     `
+//         background-color: #007bff;
+//         color: white;
+//     `}
+// `;
+
+// const EventBadge = styled.span`
+//   display: block;
+//   background-color: ${(props) => props.color || "#28a745"};
+//   color: #fff;
+//   padding: 2px 5px;
+//   border-radius: 3px;
+//   font-size: 0.8rem;
+//   margin-top: 5px;
+//   text-decoration: none;
+// `;
 const Day = styled.div`
   padding: 10px;
   background-color: ${(props) =>
-    props.isCurrentMonth ? "#e6e6e6" : "transparent"};
+    props.isCurrentMonth ? "#f9f9f9" : "transparent"};
   border: 1px solid #ccc;
   border-radius: 5px;
-  min-height: 80px;
+  min-height: 100px; // Adjust the height for better spacing
   position: relative;
   cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; // Aligns the date and events
 
   &:hover {
-    background-color: #dcdcdc;
+    background-color: #e6e6e6;
   }
 
   ${(props) =>
     props.hasEvent &&
     `
-        background-color: #007bff;
-        color: white;
+      background-color: #007bff;
+      color: white;
     `}
 `;
 
@@ -71,11 +106,22 @@ const EventBadge = styled.span`
   display: block;
   background-color: ${(props) => props.color || "#28a745"};
   color: #fff;
-  padding: 2px 5px;
+  padding: 4px 6px;
   border-radius: 3px;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
+  margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+const ExtraEvents = styled.div`
+  font-size: 0.75rem;
+  color: white;
+  background-color: rgba(255, 255, 255, 0.2);
+  padding: 2px 6px;
+  border-radius: 3px;
   margin-top: 5px;
-  text-decoration: none;
+  text-align: center;
 `;
 
 const Calendar = () => {
@@ -121,6 +167,13 @@ const Calendar = () => {
         const eventDate = new Date(event.date);
         return eventDate.toDateString() === date.toDateString();
       });
+      // Sort events by date and limit to 2 latest events
+      const sortedDayEvents = dayEvents.sort(
+        (a, b) => new Date(a.date) - new Date(b.date)
+      );
+      const visibleEvents = sortedDayEvents.slice(0, 2); // Show only the first two events
+      const additionalEventCount =
+        sortedDayEvents.length - visibleEvents.length;
 
       days.push(
         <Day
@@ -130,25 +183,16 @@ const Calendar = () => {
           onClick={() => handleDayClick(date)}
         >
           <span>{day}</span>
-          {dayEvents.map((event) => (
+          {visibleEvents.map((event) => (
             <Link to={`/event/${event.id}`} key={event.id}>
               <EventBadge color={getEventColor(event.category)}>
                 {event.title}
               </EventBadge>
             </Link>
           ))}
-          {/* Displaying titles of events under the date */}
-          {dayEvents.length > 0 && (
-            <div>
-              {dayEvents.map((event) => (
-                <span
-                  key={event.id}
-                  style={{ display: "block", fontSize: "0.8rem" }}
-                >
-                  {event.title}
-                </span>
-              ))}
-            </div>
+          {/* Show +X if there are more than two events */}
+          {additionalEventCount > 0 && (
+            <ExtraEvents>+{additionalEventCount} more</ExtraEvents>
           )}
         </Day>
       );
