@@ -4,6 +4,9 @@ import useEvents from "../hooks/useEvents";
 import { Link } from "react-router-dom";
 import Modal from "./Modal";
 import EventForm from "./EventForm";
+import AddIcon from "@mui/icons-material/Add";
+// Import the Add icon from Material-UI
+import Fab from "@mui/material/Fab";
 
 const CalendarContainer = styled.div`
   max-width: 1000px;
@@ -18,6 +21,17 @@ const CalendarContainer = styled.div`
 
   @media (max-width: 768px) {
     padding: 10px;
+  }
+`;
+const FloatingButton = styled(Fab)`
+  align-items: end;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #007bff;
+  color: white;
+  &:hover {
+    background-color: #0056b3;
   }
 `;
 
@@ -155,7 +169,7 @@ const Calendar = ({ themeMode }) => {
 
     // Add actual days
     for (let day = 1; day <= totalDays; day++) {
-      const date = new Date(currentYear, currentMonth, day + 1);
+      const date = new Date(currentYear, currentMonth, day);
       const dayEvents = events.filter((event) => {
         const eventDate = new Date(event.date);
         return eventDate.toDateString() === date.toDateString();
@@ -224,14 +238,26 @@ const Calendar = ({ themeMode }) => {
     }
   };
 
+  // const handleDayClick = (date) => {
+  //   setSelectedDate(date);
+  //   setShowModal(true);
+  // };
   const handleDayClick = (date) => {
-    setSelectedDate(date);
+    console.log("Clicked Date: ", date); // Check the clicked date
+    const normalizedDate = new Date(date);
+    normalizedDate.setHours(0, 0, 0, 0);
+    console.log("Normalized Date: ", normalizedDate); // Check the normalized date
+    setSelectedDate(normalizedDate);
     setShowModal(true);
   };
 
   const closeModal = () => {
     setShowModal(false);
     setSelectedDate(null);
+  };
+  const openEventForm = () => {
+    setSelectedDate(new Date()); // Set selectedDate to today's date for the new event
+    setShowModal(true);
   };
 
   return (
@@ -258,6 +284,9 @@ const Calendar = ({ themeMode }) => {
           <EventForm selectedDate={selectedDate} onClose={closeModal} />
         </Modal>
       )}
+      <FloatingButton onClick={openEventForm}>
+        <AddIcon />
+      </FloatingButton>
     </CalendarContainer>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import useEvents from "../hooks/useEvents";
 
@@ -43,11 +43,7 @@ const EventForm = ({ selectedDate, onClose, existingEvent }) => {
   const { addEvent, editEvent } = useEvents();
 
   const [title, setTitle] = useState(existingEvent ? existingEvent.title : "");
-  const [date, setDate] = useState(
-    existingEvent
-      ? existingEvent.date
-      : selectedDate.toISOString().split("T")[0]
-  );
+  const [date, setDate] = useState("");
   const [hour, setHour] = useState(existingEvent ? existingEvent.hour : "12");
   const [minute, setMinute] = useState(
     existingEvent ? existingEvent.minute : "00"
@@ -59,6 +55,21 @@ const EventForm = ({ selectedDate, onClose, existingEvent }) => {
   const [description, setDescription] = useState(
     existingEvent ? existingEvent.description : ""
   );
+
+  useEffect(() => {
+    // Set the date from selectedDate if it's provided
+    if (selectedDate) {
+      // Normalize date to ensure consistent display
+      const localDate = new Date(selectedDate);
+      // Adjust to local time zone
+      const utcDate = new Date(
+        localDate.getTime() - localDate.getTimezoneOffset() * 60000
+      );
+      // Format date to YYYY-MM-DD for input
+      const formattedDate = utcDate.toISOString().split("T")[0];
+      setDate(formattedDate);
+    }
+  }, [selectedDate]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
