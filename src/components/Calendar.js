@@ -1,4 +1,3 @@
-// src/components/Calendar.js
 import React, { useState } from "react";
 import styled from "styled-components";
 import useEvents from "../hooks/useEvents";
@@ -7,91 +6,84 @@ import Modal from "./Modal";
 import EventForm from "./EventForm";
 
 const CalendarContainer = styled.div`
-  max-width: 800px;
+  max-width: 1000px;
   margin: 20px auto;
-  padding: 10px;
+  padding: 20px;
   border: 1px solid #ccc;
   border-radius: 10px;
-  background-color: #fff;
+  background-color: ${({ themeMode }) =>
+    themeMode === "dark" ? "#333" : "#fff"};
+  color: ${({ themeMode }) => (themeMode === "dark" ? "white" : "black")};
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 
-  ${({ themeMode }) =>
-    themeMode === "dark" &&
-    `
-  background-color: #333;
-  color: white;
-`}
+  @media (max-width: 768px) {
+    padding: 10px;
+  }
 `;
 
 const Header = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 20px;
+
+  h2 {
+    font-size: 1.5rem;
+    color: ${({ themeMode }) => (themeMode === "dark" ? "white" : "#333")};
+  }
 `;
 
 const Button = styled.button`
-  padding: 5px 10px;
+  padding: 8px 12px;
   margin: 5px;
   border: none;
   background-color: #007bff;
   color: #fff;
   border-radius: 4px;
   cursor: pointer;
+  transition: background-color 0.3s;
+
+  &:hover {
+    background-color: #0056b3;
+  }
 `;
 
 const Grid = styled.div`
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  grid-gap: 5px;
-  padding: 10px 0;
+  grid-gap: 10px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (max-width: 500px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
 `;
 
-// const Day = styled.div`
-//   padding: 10px;
-//   background-color: ${(props) =>
-//     props.isCurrentMonth ? "#e6e6e6" : "transparent"};
-//   border: 1px solid #ccc;
-//   border-radius: 5px;
-//   min-height: 80px;
-//   position: relative;
-//   cursor: pointer;
-
-//   &:hover {
-//     background-color: #dcdcdc;
-//   }
-
-//   ${(props) =>
-//     props.hasEvent &&
-//     `
-//         background-color: #007bff;
-//         color: white;
-//     `}
-// `;
-
-// const EventBadge = styled.span`
-//   display: block;
-//   background-color: ${(props) => props.color || "#28a745"};
-//   color: #fff;
-//   padding: 2px 5px;
-//   border-radius: 3px;
-//   font-size: 0.8rem;
-//   margin-top: 5px;
-//   text-decoration: none;
-// `;
 const Day = styled.div`
   padding: 10px;
-  background-color: ${(props) =>
-    props.isCurrentMonth ? "#f9f9f9" : "transparent"};
-  border: 1px solid #ccc;
+  background-color: ${({ isCurrentMonth, themeMode }) =>
+    isCurrentMonth
+      ? themeMode === "dark"
+        ? "#444"
+        : "#f9f9f9"
+      : "transparent"};
+  border: 1px solid
+    ${({ themeMode }) => (themeMode === "dark" ? "#555" : "#ccc")};
   border-radius: 5px;
-  min-height: 100px; // Adjust the height for better spacing
+  min-height: 120px;
   position: relative;
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  justify-content: space-between; // Aligns the date and events
+  justify-content: space-between;
+  transition: background-color 0.3s;
 
   &:hover {
-    background-color: #e6e6e6;
+    background-color: ${({ themeMode }) =>
+      themeMode === "dark" ? "#555" : "#e6e6e6"};
   }
 
   ${(props) =>
@@ -104,7 +96,7 @@ const Day = styled.div`
 
 const EventBadge = styled.span`
   display: block;
-  background-color: ${(props) => props.color || "#28a745"};
+  background-color: ${({ color }) => color || "#28a745"};
   color: #fff;
   padding: 4px 6px;
   border-radius: 3px;
@@ -114,6 +106,7 @@ const EventBadge = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
 `;
+
 const ExtraEvents = styled.div`
   font-size: 0.75rem;
   color: white;
@@ -124,7 +117,7 @@ const ExtraEvents = styled.div`
   text-align: center;
 `;
 
-const Calendar = () => {
+const Calendar = ({ themeMode }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [showModal, setShowModal] = useState(false);
@@ -167,7 +160,7 @@ const Calendar = () => {
         const eventDate = new Date(event.date);
         return eventDate.toDateString() === date.toDateString();
       });
-      // Sort events by date and limit to 2 latest events
+
       const sortedDayEvents = dayEvents.sort(
         (a, b) => new Date(a.date) - new Date(b.date)
       );
@@ -181,6 +174,7 @@ const Calendar = () => {
           isCurrentMonth={true}
           hasEvent={dayEvents.length > 0}
           onClick={() => handleDayClick(date)}
+          themeMode={themeMode}
         >
           <span>{day}</span>
           {visibleEvents.map((event) => (
@@ -190,7 +184,6 @@ const Calendar = () => {
               </EventBadge>
             </Link>
           ))}
-          {/* Show +X if there are more than two events */}
           {additionalEventCount > 0 && (
             <ExtraEvents>+{additionalEventCount} more</ExtraEvents>
           )}
@@ -242,8 +235,8 @@ const Calendar = () => {
   };
 
   return (
-    <CalendarContainer>
-      <Header>
+    <CalendarContainer themeMode={themeMode}>
+      <Header themeMode={themeMode}>
         <Button onClick={prevMonth}>Previous</Button>
         <h2>
           {months[currentMonth]} {currentYear}
