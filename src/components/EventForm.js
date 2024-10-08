@@ -59,17 +59,32 @@ const EventForm = ({ selectedDate, onClose, existingEvent }) => {
   useEffect(() => {
     // Set the date from selectedDate if it's provided
     if (selectedDate) {
-      // Normalize date to ensure consistent display
       const localDate = new Date(selectedDate);
-      // Adjust to local time zone
       const utcDate = new Date(
         localDate.getTime() - localDate.getTimezoneOffset() * 60000
       );
-      // Format date to YYYY-MM-DD for input
       const formattedDate = utcDate.toISOString().split("T")[0];
+      setDate(formattedDate);
+    } else {
+      // Set date to today if no date is provided
+      const today = new Date();
+      const formattedDate = today.toISOString().split("T")[0];
       setDate(formattedDate);
     }
   }, [selectedDate]);
+
+  useEffect(() => {
+    // Set the current system time if no existing event is provided
+    if (!existingEvent) {
+      const now = new Date();
+      const currentHour = now.getHours();
+      const currentMinute = now.getMinutes();
+
+      setHour(currentHour % 12 === 0 ? 12 : currentHour % 12); // convert to 12-hour format
+      setMinute(currentMinute.toString().padStart(2, "0"));
+      setAmpm(currentHour >= 12 ? "PM" : "AM");
+    }
+  }, [existingEvent]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
